@@ -13,6 +13,18 @@
     <header>
 	<h3>Investigate impact of the regularisation parameter lambda on different inverse solutions</h3>
 	<div class="row">
+		<button id="btnVHDRFile">
+			Load VHDR
+		</button>
+		<button id="btnEEGFile">
+			Load EEG
+		</button>
+		<button id="btnSEFFile">
+			Load EEG_sef
+		</button>
+		<button id="loadMRIFile">
+			Load MRI
+		</button>
 		<div class="dropdown">
 			<button class="dropbtn" data-toggle="dropdown">
 			  View
@@ -158,5 +170,7 @@
 <script type="module" async>
 	import * as niivue from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.46.0/dist/index.js";
 	import main from "./scripts/main.js";
+	import { initEvents, getData } from './scripts/file-loader.js';
+	initEvents();
 	main(niivue);
  </script>
