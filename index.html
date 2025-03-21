@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Investigate impact of regularisation on inverse solution.</title>
-    <link rel="stylesheet" href="../styles/niivue_dualview.css" />
+    <link rel="stylesheet" href="./styles/niivue_dualview.css" />
   </head>
   <body>
     <noscript>niivue requires JavaScript.</noscript>
@@ -174,12 +174,12 @@
 	var percThrBtn = document.getElementById('percThrCheck');
 	var volumeList1 = [
 	{
-		url: "../data/sub-16_ses-preop_desc-brain_T1w.nii.gz",
+		url: "./data/sub-16_ses-preop_desc-brain_T1w.nii.gz",
 		colormap: "gray",
 		opacity: 1
 	},
 	{
-		url: "../data/IED_source/sub-16_meth-" + currMethod.toLowerCase() + ".nii",
+		url: "./data/IED_source/sub-16_meth-" + currMethod.toLowerCase() + ".nii",
 		colormap: "hot",
 		opacity: .6,
 		visible: true,
@@ -386,7 +386,7 @@
 	async function loadESI() {
 		const curr_crmap = nv1.volumes[1].colormap;
 		nv1.volumes.pop(); //remove current 4D volume
-		let fname = "../data/IED_source/sub-16_meth-" + currMethod.toLowerCase() + ".nii";
+		let fname = "./data/IED_source/sub-16_meth-" + currMethod.toLowerCase() + ".nii";
 		volumeList1[1].url = fname;
 		await nv1.addVolumeFromUrl(volumeList1[1]);
 		imgESI = nv1.volumes[1].valueOf();
@@ -425,7 +425,7 @@
 	nv1.volumes[0].colorbarVisible = false;
 	// preload the dipoles of the dipole fit
 	const R = 15;
-	let response = await fetch("../data/IED_source/sub-16_meth-dipole_fit.json", {});
+	let response = await fetch("./data/IED_source/sub-16_meth-dipole_fit.json", {});
 	let dipoleFits = await response.json();
 	let nDipoles = dipoleFits.x.length;
 	for (let dipID=0; dipID<nDipoles; dipID++){
@@ -511,7 +511,7 @@
 	nv2.attachTo("gl_topo");
 	var meshLayersList = [
     {
-      url: "../data/IED_source/sub-16_ses-preop_elecMesh2D.gii",
+      url: "./data/IED_source/sub-16_ses-preop_elecMesh2D.gii",
 	  colormap: "hot",
 	  colormapNegative: "electric_blue",
 	  cal_min: 0,
@@ -522,7 +522,7 @@
   ];
 	await nv2.loadMeshes([
 		{
-		  url: "../data/IED_source/sub-16_ses-preop_elecMesh2D.gii",
+		  url: "./data/IED_source/sub-16_ses-preop_elecMesh2D.gii",
 		  layers: meshLayersList,
 		}
 	]);
