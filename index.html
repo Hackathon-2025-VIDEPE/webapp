@@ -170,7 +170,9 @@
 <script type="module" async>
 	import * as niivue from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.46.0/dist/index.js";
 	import main from "./scripts/main.js";
-	import { initEvents, getData } from './scripts/file-loader.js';
+	import { initEvents } from './scripts/file-loader.js';
+
 	initEvents();
+	
 	main(niivue);
  </script>

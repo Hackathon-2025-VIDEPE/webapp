@@ -1,6 +1,15 @@
+import { fireEvent } from "./utils.js";
+
 let importedData = {};
 const fileReader = new FileReader();
-const textDecoder = new TextDecoder();
+const textDecoder = new TextDecoder('utf-8');
+
+const canLoadNewFile = () => {
+    if (importedData?.data?.length) {
+        return confirm('You already have data loaded.\nImporting new data will replace them.\n')
+    }
+    return true;
+}
 
 export function initEvents(){
     btnVHDRFile.addEventListener('click', loadVHDRFile);
@@ -8,19 +17,9 @@ export function initEvents(){
     btnSEFFile.addEventListener('click', loadSEFFile)
 }
 
-export async function getData() {
-    return importedData;
-}
-
-const canLoadNewFile = () => {
-    if (importedData.data) {
-        return confirm('You already have data loaded.\nImporting new data will replace them.\n')
-    }
-    return true;
-}
-
 function loadVHDRFile() {
     if (canLoadNewFile()) {
+        resetData();
         const inputVHDR = document.createElement('input');
         inputVHDR.type = 'file';
         inputVHDR.accept = '.vhdr';
@@ -67,6 +66,7 @@ function loadSEFFile() {
 
         inputSEF.addEventListener('change', (onChangeEvent) => {
             const file = onChangeEvent.target.files[0];
+            console.log(onChangeEvent.target.files)
             if (file) {
                 readSEFFile(file);
             }
@@ -83,7 +83,7 @@ function readVHDRFile(file) {
         const fileData = textDecoder.decode(event.target.result);
         importedData.eegFileName = /DataFile=([^\r\n]*)/.exec(fileData)[1];
         importedData.nChannels = Number(/NumberOfChannels=(\d+)/.exec(fileData)[1]);
-        importedData.samplRate = 1e6 / Number(/SamplingInterval=(\d+)/.exec(fileData)[1]);
+        importedData.sampRate = 1e6 / Number(/SamplingInterval=(\d+)/.exec(fileData)[1]);
         importedData.orientation = /DataOrientation=(MULTIPLEXED|VECTORIZED)/.exec(fileData)[1];
         let match;
         const regex = /(Ch\d+)=(\w+),,/gm;
@@ -92,8 +92,7 @@ function readVHDRFile(file) {
             if (match.index === regex.lastIndex) {
                 regex.lastIndex++;
             }
-
-            importedData.channels = [...importedData.channels, { id: match[1], name: match[2]}];
+            importedData.channels = [...importedData.channels, match[2]];
         }
     }
 }
@@ -102,72 +101,76 @@ function readEEGFile(file) {
     fileReader.readAsArrayBuffer(file);
     fileReader.onload = function(event) {
         const arrayBuffer = event.target.result;
-        const float32Array = new Float32Array(arrayBuffer); // Convert binary data to Float32Array
-        const total_samples = float32Array.length;
-        const t = total_samples / importedData.nChannels; // Infer timepoints
-        let eegMatrix = new Array(importedData.nChannels).fill().map(() => new Array(t));
+        // Convert binary data to Float32Array
+        const float32Array = new Float32Array(arrayBuffer); 
+        importedData.data = getEEGMatrix(float32Array, importedData.nChannels);
+        console.log(importedData);
+        fireEvent('getData', importedData);
+    }
+}
+
+function getEEGMatrix(float32Array, nChannels) {
+    const total_samples = float32Array.length;
+        const t = total_samples / nChannels; // Infer timepoints
+        let eegMatrix = new Array(nChannels).fill().map(() => new Array(t));
         for (let sampleIdx = 0; sampleIdx < t; sampleIdx++) {
-            for (let channelIdx = 0; channelIdx < importedData.nChannels; channelIdx++) {
-                eegMatrix[channelIdx][sampleIdx] = float32Array[sampleIdx * importedData.nChannels + channelIdx];
+            for (let channelIdx = 0; channelIdx < nChannels; channelIdx++) {
+                eegMatrix[channelIdx][sampleIdx] = float32Array[sampleIdx * nChannels + channelIdx];
             }
         }
-        console.log(eegMatrix)
-    }
+        return eegMatrix;
 }
 
 function readSEFFile(file) {
     fileReader.readAsArrayBuffer(file);
     fileReader.onload = function(event) {
-        let arrayBuffer = event.target.result;
-
-        let res = {};
-        let beg = 0;
-
+        resetData();
+        importedData.orientation = 'MULTIPLEXED';
+        const arrayBuffer = event.target.result;
+        let bitIndex = 0;
+       
         // version = 4 chars
-        res.version = textDecoder.decode(new Uint8Array(arrayBuffer.slice(0,4)));
+        importedData.version = textDecoder.decode(new Uint8Array(arrayBuffer.slice(0,4)));
         
-        beg += 4;
+        bitIndex += 4;
 
         // ch, ch_aux, ntime, sr - 4 int32
-        let tmp2 = new Int32Array(arrayBuffer.slice(beg,beg+12));
-        res.nChannels = tmp2[0];
-        res.nAuxChannels = tmp2[1];
-        res.ntimeFrames = tmp2[2];
+        let tmp = new Int32Array(arrayBuffer.slice(bitIndex, bitIndex+12));
+        importedData.nChannels = tmp[0];
+        importedData.nAuxChannels = tmp[1];
+        importedData.ntimeFrames = tmp[2];
 
-        beg += 12;
+        bitIndex += 12;
 
         // sr - 4 int32
-        res.sampRate = new Float32Array(arrayBuffer.slice(beg,beg+4))[0];
+        importedData.sampRate = new Float32Array(arrayBuffer.slice(bitIndex, bitIndex+4))[0];
 
-        beg += 4;
+        bitIndex += 4;
 
         // date YY,MM,dd,hh,mm,ss,ms - 7 int16
-        let tmp3 = new Int16Array(arrayBuffer.slice(beg,14));
-        console.log(arrayBuffer.slice(beg,14))
-        res.year = tmp3[0];
-        res.month = tmp3[1];
-        res.day = tmp3[2];
-        res.hour = tmp3[3];
-        res.minute = tmp3[4];
-        res.sec = tmp3[5];
-        res.msec = tmp3[6];
+        tmp = new Int16Array(arrayBuffer.slice(bitIndex,14));
+        importedData.date = {};
+        importedData.date.year = tmp[0];
+        importedData.date.month = tmp[1];
+        importedData.date.day = tmp[2];
+        importedData.date.hour = tmp[3];
+        importedData.date.minute = tmp[4];
+        importedData.date.sec = tmp[5];
+        importedData.date.msec = tmp[6];
         
-        beg += 14;
+        bitIndex += 14;
 
-        res.channelsName = [];
-        for (var i = 0; i < res.nChannels; i++) {
-            res.channelsName[i] = new Int8Array(arrayBuffer.slice(beg,beg+8));
-            beg += 8;
+        importedData.channels = [];
+        for (var i = 0; i < importedData.nChannels; i++) {
+            importedData.channels[i] = textDecoder.decode(new Int8Array(arrayBuffer.slice(bitIndex, bitIndex+8))).replaceAll('\u0000', '');
+            bitIndex += 8;
         }
 
-        res.data = new Float32Array(arrayBuffer.slice(beg));
-        if (res.nChannels && res.sampRate && res.channelsName && res.data) {
-            importedData.eegFileName = null; 
-            importedData.nChannels = res.nChannels;
-            importedData.sampRate = res.sampRate;
-            importedData.orientation = 'MULTIPLEXED';
-            importedData.channels = res.channelsName;
-            importedData.data = res.data;
-        }
+        importedData.data = getEEGMatrix(new Float32Array(arrayBuffer.slice(bitIndex)), importedData.nChannels);
+        fireEvent('getData', importedData);
     };
+}
+
+function resetData() {
+    importedData = {};
 }
