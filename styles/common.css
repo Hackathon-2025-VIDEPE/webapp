@@ -15,3 +15,12 @@ button .expandMRIBtn {
     margin-top: 2em;
     width: 40px;
 }
+
+.default-container {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

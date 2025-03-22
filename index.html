@@ -149,7 +149,7 @@
 			</div>
 		</div>
   	</header>
-    <main id="container">
+    <main id="container" class="hide">
 		<div class='page-wrapper'>
 			<div class='row'>
 				<div class='column'>
@@ -161,20 +161,30 @@
 			</div>
 		</div>
     </main>
+	<div id="default-container" class="default-container">
+		Start uploading EEG files to process data
+	</div>
   	</body>
 </html>
-<script src="./scripts/store.js"></script>
+<script type="module" src="./scripts/store.js"></script>
 <script type="module" src="./scripts/helper.js"></script>
 <script type="module" src="./scripts/main.js"></script>
-<script src="plotly-3.0.1.min.js" charset="utf-8"></script>
+<script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
 <script src="./scripts/eeg-charts.js"></script>
 <script src="./scripts/file/file-manager.js"></script>
 <script type="module" async>
 	import * as niivue from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.46.0/dist/index.js";
 	import main from "./scripts/main.js";
+	import reimit from './scripts/store.js';
 	import { initEvents } from './scripts/file/file-loader.js';
 
 	initEvents();
 
 	main(niivue);
+
+	document.addEventListener('showContent', (event) => {
+		document.getElementById('container').classList.remove('hide');
+		document.getElementById('default-container').style.display = 'none';
+		reimit('getData');
+	})
  </script>

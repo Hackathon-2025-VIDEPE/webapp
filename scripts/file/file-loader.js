@@ -38,11 +38,11 @@ function loadEEGFiles() {
         inputOtherEEG.click();
     } else if (canLoadNewFile()) {
         resetData();
-        const inputEEG = document.createElement('input');
-        inputEEG.type = 'file';
-        inputEEG.accept = '.sef,.vhdr';
+        const inputEEGs = document.createElement('input');
+        inputEEGs.type = 'file';
+        inputEEGs.accept = '.sef,.vhdr';
 
-        inputEEG.addEventListener('change', (onChangeEvent) => {
+        inputEEGs.addEventListener('change', (onChangeEvent) => {
             const file = onChangeEvent.target.files[0];
             if (file) {
                 if (file.name.includes('.sef')){
@@ -56,7 +56,7 @@ function loadEEGFiles() {
             }
         });
 
-        inputEEG.click();
+        inputEEGs.click();
     }
 }
 
@@ -108,6 +108,7 @@ function readSEFFile(file) {
 
         importedData.data = getEEGMatrix(new Float32Array(arrayBuffer.slice(bitIndex)), importedData.nChannels);
         fireEvent('loadSEFFile', true);
+        fireEvent('showContent', true);
         fireEvent('getData', importedData);
     };
 }
@@ -160,6 +161,7 @@ function readEEGFile(file) {
         const float32Array = new Float32Array(arrayBuffer); 
         importedData.data = getEEGMatrix(float32Array, importedData.nChannels);
         fireEvent('loadEEGFile', true);
+        fireEvent('showContent', true);
         fireEvent('getData', importedData);
     }
 }
