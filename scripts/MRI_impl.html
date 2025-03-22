@@ -282,6 +282,14 @@ function createthresholdslider(volumeIndex, selectedOptionText='',vis) {
             nv1.updateGLVolume(); // Update the visualization
         }
 
+
+        var nv1 = new niivue.Niivue({
+            dragAndDropEnabled: true,
+            onLocationChange: handleIntensityChange
+        });
+        await nv1.attachTo('gl1');
+        nv1.setSliceType(nv1.sliceTypeMultiplanar);
+        
         var nv1 = new niivue.Niivue({
             dragAndDropEnabled: true,
             onLocationChange: handleIntensityChange
