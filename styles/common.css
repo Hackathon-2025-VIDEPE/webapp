@@ -1,0 +1,17 @@
+.uploaded {
+    color: green;
+}
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: flex;
+}
+
+button .expandMRIBtn {
+    position: absolute;
+    margin-top: 2em;
+    width: 40px;
+}
