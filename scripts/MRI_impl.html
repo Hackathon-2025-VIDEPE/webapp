@@ -43,7 +43,7 @@
             display: flex;
             justify-content: flex-start;
             padding: 10px;
-            background-color: #F0F0F0;
+            background-color: #020202;
             gap: 10px;
             flex-wrap: wrap;
         }
@@ -134,7 +134,10 @@
             createColorMapControl(nv1.volumes.length - 1, selectedOptionText); // Pass the index of the newly added volume
             createVisibilityControl(nv1.volumes.length - 1, selectedOptionText); // Pass the index of the newly added volume
             if (selectedOptionText === "PET" || selectedOptionText === "Spect") {
-                createthresholdslider(nv1.volumes.length - 1, selectedOptionText);
+                createthresholdslider(nv1.volumes.length - 1, selectedOptionText,false);
+            }
+            else {
+                createthresholdslider(nv1.volumes.length - 1, selectedOptionText,true);
             }
         }   
         // Function to create an opacity slider dynamically
@@ -240,11 +243,12 @@
         console.warn("opacityControls div not found in the document.");
     }
 }
-function createthresholdslider(volumeIndex, selectedOptionText='') {
+function createthresholdslider(volumeIndex, selectedOptionText='',vis) {
             // Create the slider container
             let sliderContainer = document.createElement("div");
             // Create the label for the slider
             let label = document.createElement("label");
+            label.hidden = vis;
             label.innerHTML = selectedOptionText + '_threshold';
             // Create the slider element
             let slider = document.createElement("input");
@@ -252,11 +256,13 @@ function createthresholdslider(volumeIndex, selectedOptionText='') {
             slider.min = nv1.volumes[volumeIndex].cal_min;
             slider.max = 1.01*nv1.volumes[volumeIndex].cal_max;
             slider.step = 0.01*(nv1.volumes[volumeIndex].cal_max-nv1.volumes[volumeIndex].cal_min);
+            slider.hidden = vis;
             slider.value = nv1.volumes[volumeIndex].cal_min; // Set the default opacity to 70%
             slider.classList.add("opacity-slider"); // Add class for styling
             // Create the input element for the opacity value display
             let threshValue = document.createElement("span");
             threshValue.innerHTML = "0%";
+            threshValue.hidden = vis;
             // Append the elements to the slider container
             sliderContainer.appendChild(label);
             sliderContainer.appendChild(slider);
