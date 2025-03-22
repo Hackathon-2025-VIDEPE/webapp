@@ -153,6 +153,9 @@
 		<div class='page-wrapper'>
 			<div class='row'>
 				<div class='column'>
+					<div style="height:300px; pointer-events: none">
+						<canvas id="glTopo" >
+					</div>
 					<div id="eegPannel"></div>
 				</div>
 				<div class='column'>
@@ -177,7 +180,8 @@
 	import main from "./scripts/main.js";
 	import reimit from './scripts/store.js';
 	import { initEvents } from './scripts/file/file-loader.js';
-
+	import TopoDisplay from "./scripts/topo-helper.js";
+	
 	initEvents();
 
 	main(niivue);
@@ -187,4 +191,9 @@
 		document.getElementById('default-container').style.display = 'none';
 		reimit('getData');
 	})
+	
+	let myTopoDisp = new TopoDisplay('glTopo', niivue);
+		document.addEventListener('getData', (data) => {
+			myTopoDisp.loadEEGTopo(data)
+		})
  </script>
