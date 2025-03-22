@@ -226,7 +226,7 @@
             } else {
                 opacityControls.childNodes[4*volumeIndex].childNodes[1].disabled = false;
                 opacityControls.childNodes[4*volumeIndex+1].childNodes[0].disabled = false;
-                adjustOpacity(volumeIndex, opacityControls.childNodes[3*volumeIndex].childNodes[1].value); // Set opacity to 70% if volume is visible
+                adjustOpacity(volumeIndex, opacityControls.childNodes[4*volumeIndex].childNodes[1].value); // Set opacity to 70% if volume is visible
             }
             nv1.updateGLVolume(); // Refresh the volume rendering
         } else {
