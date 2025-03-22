@@ -6,173 +6,175 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Investigate impact of regularisation on inverse solution.</title>
+	<link rel="stylesheet" href="./styles/common.css" />
     <link rel="stylesheet" href="./styles/niivue_dualview.css" />
   </head>
   <body>
     <noscript>niivue requires JavaScript.</noscript>
     <header>
-	<h3>Investigate impact of the regularisation parameter lambda on different inverse solutions</h3>
-	<div class="row">
-		<button id="btnVHDRFile">
-			Load VHDR
-		</button>
-		<button id="btnEEGFile">
-			Load EEG
-		</button>
-		<button id="btnSEFFile">
-			Load EEG_sef
-		</button>
-		<button id="loadMRIFile">
-			Load MRI
-		</button>
-		<div class="dropdown">
-			<button class="dropbtn" data-toggle="dropdown">
-			  View
-			  <i class="fa fa-caret-down"></i>
-			</button>
-			<div class="dropdown-content">
-			  <a href="#" class="viewBtn" id="|Axial">Axial</a>
-			  <a class="viewBtn" id="|Sagittal">Sagittal</a>
-			  <a class="viewBtn" id="|Coronal">Coronal</a>
-			  <a class="viewBtn" id="|Render">Render</a>
-			  <a class="viewBtn" id="|MultiPlanar">A+C+S</a>
-			  <a class="viewBtn dropdown-item-checked" id="|MultiPlanarRender">A+C+S+R</a		  >
-			  <a class="viewBtn divider dropdown-item-checked" id="Colorbar">Colorbar</a>
-			  <a class="viewBtn" id="Radiological">Radiological</a>
-			  <a class="viewBtn" id="ClipPlane">Render Clip Plane</a>
+		<h3>Investigate impact of the regularisation parameter lambda on different inverse solutions</h3>
+		<div class="row">
+			<div class="dropdown">
+				<button class="dropbtn" data-toggle="dropdown">
+					Files
+					<i class="fa fa-caret-down"></i>
+				</button>
+				<div class="dropdown-content">
+					<a class="fileBtn" id="btnEEGsFile">Load EEG</a>
+					<div class="divider"></div>
+					<div class="file-info">VHDR<span id="VHDRStatus"></span></div>
+					<div class="file-info">EEG<span id="EEGStatus"></span></div>
+					<div class="file-info">EEG-sef<span id="SEFStatus"></span></div>
+				</div>
+			</div>
+			<div class="dropdown">
+				<button class="dropbtn" data-toggle="dropdown">
+				View
+				<i class="fa fa-caret-down"></i>
+				</button>
+				<div class="dropdown-content">
+				<a href="#" class="viewBtn" id="|Axial">Axial</a>
+				<a class="viewBtn" id="|Sagittal">Sagittal</a>
+				<a class="viewBtn" id="|Coronal">Coronal</a>
+				<a class="viewBtn" id="|Render">Render</a>
+				<a class="viewBtn" id="|MultiPlanar">A+C+S</a>
+				<a class="viewBtn dropdown-item-checked" id="|MultiPlanarRender">A+C+S+R</a		  >
+				<a class="viewBtn divider dropdown-item-checked" id="Colorbar">Colorbar</a>
+				<a class="viewBtn" id="Radiological">Radiological</a>
+				<a class="viewBtn" id="ClipPlane">Render Clip Plane</a>
+				</div>
+			</div>
+			<div class="dropdown">
+				<button class="dropbtn">
+				PSF Color
+				<i class="fa fa-caret-down"></i>
+				</button>
+				<div class="dropdown-content">
+				<a class="viewBtn" id="!Blue">Blue</a>
+				<a class="viewBtn" id="!Blue2Cyan">Blue2Cyan</a>
+				<a class="viewBtn" id="!Bronze">Bronze</a>
+				<a class="viewBtn" id="!Cividis">Cividis</a>
+				<a class="viewBtn" id="!Electric_Blue">Electric_Blue</a>
+				<a class="viewBtn dropdown-item-checked" id="!Hot">Hot</a>
+				<a class="viewBtn" id="!Inferno">Inferno</a>
+				<a class="viewBtn" id="!Magma">Magma</a>
+				<a class="viewBtn" id="!Plasma">Plasma</a>
+				<a class="viewBtn" id="!Rocket">Rocket</a>
+				<a class="viewBtn" id="!Violet">Violet</a>
+				<a class="viewBtn" id="!Viridis">Viridis</a>
+				</div>
+			</div>
+			<div class="dropdown">
+				<button class="dropbtn">
+				Inverse solutions
+				<i class="fa fa-caret-down"></i>
+				</button>
+				<div class="dropdown-content">
+					<a class="viewBtn dropdown-item-checked" id="_eLORETA">eLORETA</a>
+					<a class="viewBtn dropdown" id="_LCMV">LCMV</a>
+					<a class="viewBtn dropdown" id="_DipoleFit">DipoleFit</a>
+				</div>
+			</div>
+			<div class="dropdown">
+				<button class="dropbtn">
+				About
+				<i class="fa fa-caret-down"></i>
+				</button>
+				<div class="dropdown-content">
+					<a class="viewBtn dropdown" id="-Authors">Authors</a>
+					<a class="viewBtn dropdown" href="https://github.com/niivue/niivue" target="_blank">Niivue</a>
+					<a class="viewBtn dropdown" href="https://www.fieldtriptoolbox.org/" target="_blank">Fieldtrip</a>
+					<a class="viewBtn dropdown" href="https://plotly.com/javascript/" target="_blank">Plotly</a>
+				</div>
 			</div>
 		</div>
-		<div class="dropdown">
-			<button class="dropbtn">
-			  PSF Color
-			  <i class="fa fa-caret-down"></i>
-			</button>
-			<div class="dropdown-content">
-			<a class="viewBtn" id="!Blue">Blue</a>
-			  <a class="viewBtn" id="!Blue2Cyan">Blue2Cyan</a>
-			  <a class="viewBtn" id="!Bronze">Bronze</a>
-			  <a class="viewBtn" id="!Cividis">Cividis</a>
-			  <a class="viewBtn" id="!Electric_Blue">Electric_Blue</a>
-			  <a class="viewBtn dropdown-item-checked" id="!Hot">Hot</a>
-			  <a class="viewBtn" id="!Inferno">Inferno</a>
-			  <a class="viewBtn" id="!Magma">Magma</a>
-			  <a class="viewBtn" id="!Plasma">Plasma</a>
-			  <a class="viewBtn" id="!Rocket">Rocket</a>
-			  <a class="viewBtn" id="!Violet">Violet</a>
-			  <a class="viewBtn" id="!Viridis">Viridis</a>
-			</div>
-		</div>
-		<div class="dropdown">
-			<button class="dropbtn">
-			  Inverse solutions
-			  <i class="fa fa-caret-down"></i>
-			</button>
-			<div class="dropdown-content">
-				<a class="viewBtn dropdown-item-checked" id="_eLORETA">eLORETA</a>
-				<a class="viewBtn dropdown" id="_LCMV">LCMV</a>
-				<a class="viewBtn dropdown" id="_DipoleFit">DipoleFit</a>
-			</div>
-		</div>
-		<div class="dropdown">
-			<button class="dropbtn">
-			  About
-			  <i class="fa fa-caret-down"></i>
-			</button>
-			<div class="dropdown-content">
-				<a class="viewBtn dropdown" id="-Authors">Authors</a>
-				<a class="viewBtn dropdown" href="https://github.com/niivue/niivue" target="_blank">Niivue</a>
-				<a class="viewBtn dropdown" href="https://www.fieldtriptoolbox.org/" target="_blank">Fieldtrip</a>
-				<a class="viewBtn dropdown" href="https://plotly.com/javascript/" target="_blank">Plotly</a>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div style="outline: #505050 2px solid; padding: 2px 10px;">
-			<label for="MinSlider">Min threshold</label>
-			<input
-				type="range"
-				min="0"
-				max="999"
-				value="0"
-				class="slider"
-				id="MinSlider"
-			/>
-			<label for="MaxSlider">Max threshold</label>
+		<div class="row">
+			<div style="outline: #505050 2px solid; padding: 2px 10px;">
+				<label for="MinSlider">Min threshold</label>
 				<input
 					type="range"
-					min="1"
-					max="1000"
-					value="1000"
+					min="0"
+					max="999"
+					value="0"
 					class="slider"
-					id="MaxSlider"
+					id="MinSlider"
 				/>
-			<label style="border-left: 2px solid grey; padding-left: 2px">
-			<input type="checkbox"  id="percThrCheck" />
-			<label for="percThrCheck">% thresolding </label>
-			<input type="radio" disabled="true" checked id="prec20Btn" name="percThr">
-			<label for="prec20Btn">20%</label>
-			<input type="radio" disabled="true" id="prec10Btn" name="percThr">
-			<label for="prec10Btn">10%</label>
-			<input type="radio" disabled="true" id="prec5Btn" name="percThr">
-			<label for="prec5Btn">5%</label>
-			<input type="radio" disabled="true" id="prec1Btn" name="percThr">
-			<label for="prec1Btn" style="padding-right: 10px;">1%</label>
+				<label for="MaxSlider">Max threshold</label>
+					<input
+						type="range"
+						min="1"
+						max="1000"
+						value="1000"
+						class="slider"
+						id="MaxSlider"
+					/>
+				<label style="border-left: 2px solid grey; padding-left: 2px">
+				<input type="checkbox"  id="percThrCheck" />
+				<label for="percThrCheck">% thresolding </label>
+				<input type="radio" disabled="true" checked id="prec20Btn" name="percThr">
+				<label for="prec20Btn">20%</label>
+				<input type="radio" disabled="true" id="prec10Btn" name="percThr">
+				<label for="prec10Btn">10%</label>
+				<input type="radio" disabled="true" id="prec5Btn" name="percThr">
+				<label for="prec5Btn">5%</label>
+				<input type="radio" disabled="true" id="prec1Btn" name="percThr">
+				<label for="prec1Btn" style="padding-right: 10px;">1%</label>
+			</div>
+			<div style="padding-left: 10px;">
+				<button id="reset" style="width:40px"; >reset</button>
+			</div>
 		</div>
-		<div style="padding-left: 10px;">
-			<button id="reset" style="width:40px"; >reset</button>
+		<div class="row">
+			<div style="outline: #505050 2px solid; padding: 2px 10px;">
+				<label for="timeSlider">Time point:</label>
+				<input
+					type="range"
+					min="0"
+					max="4"
+					value="2"
+					class="slider"
+					id="timeSlider"
+				/>
+				<label id="timeString" style="padding-right: 10px;">.48</label>
+				<label for="lmbdSlider"  style="border-left: 2px solid grey; padding-left: 10px;">Lambda:</label>
+				<input
+					type="range"
+					min="0"
+					max="4"
+					value="2"
+					class="slider"
+					id="lmbdSlider"
+				/>
+				<label id="lmbdString" style="padding-right: 10px;">0</label>
+			</div>
 		</div>
-	</div>
-	<div class="row">
-		<div style="outline: #505050 2px solid; padding: 2px 10px;">
-			<label for="timeSlider">Time point:</label>
-			<input
-				type="range"
-				min="0"
-				max="4"
-				value="2"
-				class="slider"
-				id="timeSlider"
-			/>
-			<label id="timeString" style="padding-right: 10px;">.48</label>
-			<label for="lmbdSlider"  style="border-left: 2px solid grey; padding-left: 10px;">Lambda:</label>
-			<input
-				type="range"
-				min="0"
-				max="4"
-				value="2"
-				class="slider"
-				id="lmbdSlider"
-			/>
-			<label id="lmbdString" style="padding-right: 10px;">0</label>
-		</div>
-	</div>
-  </header>
+  	</header>
     <main id="container">
-	<div class='page-wrapper'>
-        <div class='row'>
-		  <div class='column' >
-			  <div style="height:300px; pointer-events: none">
-              <canvas id="gl_topo" >
-			  </div>
-			  <div id="iedTrace" style="height:400px;"></div>
-
-		  </div>
-          <div class='column'>
-              <canvas id="gl1">
-          </div>
-        </div>
-    </div>
+		<div class='page-wrapper'>
+			<div class='row'>
+				<div class='column'>
+					<div id="eegPannel"></div>
+				</div>
+				<div class='column'>
+					<canvas id="gl1">
+				</div>
+			</div>
+		</div>
     </main>
-  </body>
+  	</body>
 </html>
+<script src="./scripts/store.js"></script>
 <script type="module" src="./scripts/helper.js"></script>
 <script type="module" src="./scripts/main.js"></script>
+<script src="plotly-3.0.1.min.js" charset="utf-8"></script>
+<script src="./scripts/eeg-charts.js"></script>
+<script src="./scripts/file/file-manager.js"></script>
 <script type="module" async>
 	import * as niivue from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.46.0/dist/index.js";
 	import main from "./scripts/main.js";
-	import { initEvents } from './scripts/file-loader.js';
+	import { initEvents } from './scripts/file/file-loader.js';
 
 	initEvents();
-	
+
 	main(niivue);
  </script>

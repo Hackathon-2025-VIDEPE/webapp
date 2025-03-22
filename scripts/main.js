@@ -460,8 +460,3 @@ export default async function main (niivue) {
 	var config = {responsive: true};
 	Plotly.newPlot('iedTrace', eegData, layout, config);	
 }
-
-
-document.addEventListener('getData', (data) => {
-	console.log(data)
-})
