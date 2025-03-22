@@ -93,7 +93,7 @@
     <main id="container" class="hide">
 		<div class='page-wrapper'>
 			<div class='row'>
-				<div class='column'>
+				<div class='column' id="left-column">
 					<div style="height:300px; pointer-events: none">
 						<canvas id="glTopo" >
 					</div>
@@ -101,6 +101,7 @@
 				</div>
 				<div class='column'>
 					<div class="mri-settings">
+						<button id="btnMriExpand">Toggle-Expand</button>
 						<select id="sliceType">
 							<option value="0">Axial</option>
 							<option value="1">Coronal</option>
@@ -148,7 +149,12 @@
 		document.getElementById('default-container').style.display = 'none';
 		reimit('getData');
 	})
-	
+
+	document.querySelector('#btnMriExpand').addEventListener('click', (event) => {
+		document.getElementById('left-column').classList.toggle('hide');
+		reimit('getData');
+	});
+
 	let myTopoDisp = new TopoDisplay('glTopo', niivue);
 	document.addEventListener('getData', (data) => {
 		myTopoDisp.loadEEGTopo(data)
