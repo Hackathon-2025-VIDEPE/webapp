@@ -1,7 +1,8 @@
+import * as niivue from "./niivue.0.46.0.js";
 
 export default class TopoDisplay {
 	
-	constructor(idCanvas, niivue) {
+	constructor(idCanvas) {
 
 		const opts = {
 				show3Dcrosshair: false,
@@ -14,7 +15,6 @@ export default class TopoDisplay {
 		};
 		//this.EEG_LAYOUT_DIR = "./EEG_layout_templates";
 		this.nvTopo = new niivue.Niivue(opts);
-		this.niivue = niivue;
 		this.nvTopo.attachTo(idCanvas);
 	}
   

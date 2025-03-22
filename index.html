@@ -175,8 +175,8 @@
 <script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
 <script src="./scripts/eeg-charts.js"></script>
 <script src="./scripts/file/file-manager.js"></script>
+<script src="./scripts/niivue.0.46.0.js"></script>
 <script type="module" async>
-	import * as niivue from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.46.0/dist/index.js";
 	import main from "./scripts/main.js";
 	import reimit from './scripts/store.js';
 	import { initEvents } from './scripts/file/file-loader.js';
@@ -184,7 +184,7 @@
 	
 	initEvents();
 
-	main(niivue);
+	main();
 
 	document.addEventListener('showContent', (event) => {
 		document.getElementById('container').classList.remove('hide');
@@ -192,7 +192,7 @@
 		reimit('getData');
 	})
 	
-	let myTopoDisp = new TopoDisplay('glTopo', niivue);
+	let myTopoDisp = new TopoDisplay('glTopo');
 		document.addEventListener('getData', (data) => {
 			myTopoDisp.loadEEGTopo(data)
 		})

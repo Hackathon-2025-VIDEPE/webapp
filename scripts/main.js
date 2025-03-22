@@ -1,6 +1,7 @@
 import { toggleGroup } from "./helper.js";
+import * as niivue from "./niivue.0.46.0.js";
 
-export default async function main (niivue) {
+export default async function main () {
     	
 	var lmbdSlider = document.getElementById("lmbdSlider");
 	var minSlider = document.getElementById("MinSlider");
