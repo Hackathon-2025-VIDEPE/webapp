@@ -2,8 +2,6 @@
 export function eegChartBinding(topoDisplay){
 	
 	document.addEventListener('getData', (event) => {
-		
-		//console.log(event.detail.data)
 		const time_length = event.detail.data[0].length;
 		const eegMatrix = event.detail.data;
 		const sampRate = event.detail.sampRate;
@@ -55,7 +53,7 @@ export function eegChartBinding(topoDisplay){
 		
 		Plotly.newPlot(graphDiv, data, layout);
 		graphDiv.on('plotly_click', function(click){
-			console.log('coucou');
+			// console.log('coucou');
 			let currTimeIdx = click.points[0].pointIndex;
 			layout.shapes[0].x0 = time[currTimeIdx];
 			layout.shapes[0].x1 = time[currTimeIdx];
