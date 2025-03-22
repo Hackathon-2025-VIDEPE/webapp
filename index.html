@@ -337,15 +337,11 @@ function createthresholdslider(volumeIndex, selectedOptionText='',vis) {
             // Create the slider element
             let slider = document.createElement("input");
             slider.type = "range";
-            //slider.min = nv1.volumes[volumeIndex].cal_min;
-            //slider.max = 1.01*nv1.volumes[volumeIndex].cal_max;
-            //slider.step = 0.01*(nv1.volumes[volumeIndex].cal_max-nv1.volumes[volumeIndex].cal_min);
-            slider.min = 0;
-            slider.max = 100;
-            slider.step =1 ;
-            slider.id = selectedOptionText;
+            slider.min = nv1.volumes[volumeIndex].cal_min;
+            slider.max = 1.01*nv1.volumes[volumeIndex].cal_max;
+            slider.step = 0.01*(nv1.volumes[volumeIndex].cal_max-nv1.volumes[volumeIndex].cal_min);
             slider.hidden = vis;
-            slider.value = 100; // Set the default opacity to 70%
+            slider.value = nv1.volumes[volumeIndex].cal_min; // Set the default opacity to 70%
             slider.classList.add("opacity-slider"); // Add class for styling
             // Create the input element for the opacity value display
             let threshValue = document.createElement("span");
@@ -359,39 +355,18 @@ function createthresholdslider(volumeIndex, selectedOptionText='',vis) {
             slider.oninput = function () {
                 let thresh = slider.value;
                 threshValue.innerHTML = `${thresh}%`; // Update the displayed opacity value
-                adjustThreshold(volumeIndex, thresh,slider.id); // Adjust opacity of the specific volume
+                adjustThreshold(volumeIndex, thresh); // Adjust opacity of the specific volume
             };
             // Add the slider container to the opacityControls div
             opacityControls.appendChild(sliderContainer);
         }
         // Function to adjust opacity using setOpacity method
-        function adjustThreshold(volumeIndex, thresh,idsl) {
-            //nv1.volumes[volumeIndex].cal_min = thresh; 
-           let  currValues = orderCurrValues(volumeIndex)
-            thresh = thresh/100*currValues.length;
-            let temp = currValues.slice(0,thresh);
-            if (idsl === "Spect") {
-                nv1.volumes[volumeIndex].cal_min = temp[temp.length - 1];
-            }
-            if (idsl === "PET") {
-                nv1.volumes[volumeIndex].cal_min = temp[temp.length - 1];
-            }
-            nv1.volumes[volumeIndex].cal_min = temp[temp.length - 1];
+        function adjustThreshold(volumeIndex, thresh) {
+            nv1.volumes[volumeIndex].cal_min = thresh; 
             nv1.updateGLVolume(); // Update the visualization
         }
-        function orderCurrValues(volumeNumber){
-        let currImage = nv1.volumes[volumeNumber].valueOf();
-        let volSize = currImage.dimsRAS[1]*currImage.dimsRAS[2]*currImage.dimsRAS[3];
-        let currValues = currImage.img.slice(0,volSize);
-		currValues = currValues.filter(function (value) { return !Number.isNaN(value)});
-		//maxInd =  currValues.indexOf(Math.max(...currValues));
-		// sorting is needed to define the % thresholding but is inefficient for finding the max, possible optimisation here
-		//currValues.sort((a, b) => b - a)
-        let zeros = currValues.filter(num => num === 0);
-        let nonZeros = currValues.filter(num => num !== 0).sort((a, b) => b-a);
-        currValues = nonZeros;
-        return currValues
-	}
+
+
         var nv1 = new niivue.Niivue({
             dragAndDropEnabled: true,
             onLocationChange: handleIntensityChange
