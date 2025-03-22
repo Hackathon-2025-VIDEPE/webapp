@@ -8,6 +8,7 @@
     <title>Investigate impact of regularisation on inverse solution.</title>
 	<link rel="stylesheet" href="./styles/common.css" />
     <link rel="stylesheet" href="./styles/niivue_dualview.css" />
+	<link rel="stylesheet" href="./styles/mri.css" />
   </head>
   <body>
     <noscript>niivue requires JavaScript.</noscript>
@@ -88,66 +89,6 @@
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div style="outline: #505050 2px solid; padding: 2px 10px;">
-				<label for="MinSlider">Min threshold</label>
-				<input
-					type="range"
-					min="0"
-					max="999"
-					value="0"
-					class="slider"
-					id="MinSlider"
-				/>
-				<label for="MaxSlider">Max threshold</label>
-					<input
-						type="range"
-						min="1"
-						max="1000"
-						value="1000"
-						class="slider"
-						id="MaxSlider"
-					/>
-				<label style="border-left: 2px solid grey; padding-left: 2px">
-				<input type="checkbox"  id="percThrCheck" />
-				<label for="percThrCheck">% thresolding </label>
-				<input type="radio" disabled="true" checked id="prec20Btn" name="percThr">
-				<label for="prec20Btn">20%</label>
-				<input type="radio" disabled="true" id="prec10Btn" name="percThr">
-				<label for="prec10Btn">10%</label>
-				<input type="radio" disabled="true" id="prec5Btn" name="percThr">
-				<label for="prec5Btn">5%</label>
-				<input type="radio" disabled="true" id="prec1Btn" name="percThr">
-				<label for="prec1Btn" style="padding-right: 10px;">1%</label>
-			</div>
-			<div style="padding-left: 10px;">
-				<button id="reset" style="width:40px"; >reset</button>
-			</div>
-		</div>
-		<div class="row">
-			<div style="outline: #505050 2px solid; padding: 2px 10px;">
-				<label for="timeSlider">Time point:</label>
-				<input
-					type="range"
-					min="0"
-					max="4"
-					value="2"
-					class="slider"
-					id="timeSlider"
-				/>
-				<label id="timeString" style="padding-right: 10px;">.48</label>
-				<label for="lmbdSlider"  style="border-left: 2px solid grey; padding-left: 10px;">Lambda:</label>
-				<input
-					type="range"
-					min="0"
-					max="4"
-					value="2"
-					class="slider"
-					id="lmbdSlider"
-				/>
-				<label id="lmbdString" style="padding-right: 10px;">0</label>
-			</div>
-		</div>
   	</header>
     <main id="container" class="hide">
 		<div class='page-wrapper'>
@@ -159,7 +100,24 @@
 					<div id="eegPannel"></div>
 				</div>
 				<div class='column'>
-					<canvas id="gl1">
+					<div class="mri-settings">
+						<select id="sliceType">
+							<option value="0">Axial</option>
+							<option value="1">Coronal</option>
+							<option value="2">Sagittal</option>
+							<option value="4">Render</option>
+							<option value="3" selected>A+C+S+R</option>
+						</select>
+						<select id="Add file">
+							<option value="0">Load an image</option>
+							<option value="1">PET</option>
+							<option value="2">Spect</option>
+							<option value="3">MRI</option>
+						</select>
+					</div>
+					<canvas id="gl1"></canvas>
+					<footer id="intensity">&nbsp;</footer>
+    				<div id="opacityControls"></div> <!-- Container for opacity sliders -->
 				</div>
 			</div>
 		</div>
@@ -175,7 +133,7 @@
 <script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
 <script type="module" src="./scripts/eeg-charts.js"></script>
 <script src="./scripts/file/file-manager.js"></script>
-												  
+<script src="./scripts/niivue.0.46.0.js"></script>
 <script type="module" async>
 	import * as niivue from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.46.0/dist/index.js";
 	import main from "./scripts/main.js";
