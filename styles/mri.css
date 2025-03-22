@@ -22,7 +22,7 @@
 #opacityControls {
     display: flex;
     justify-content: flex-start;
-    padding: 10px;
+    padding: 2px 10px;
     gap: 10px;
     flex-wrap: wrap;
 }

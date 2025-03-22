@@ -98,8 +98,7 @@
 						<canvas id="glTopo" >
 					</div>
 					<div id="eegPannel"></div>
-					<footer id="intensity">&nbsp;</footer>
-    				<div id="opacityControls"></div> <!-- Container for opacity sliders -->
+    				<div id="opacityControls"></div>
 				</div>
 				<div class='column'>
 					<div class="mri-settings">
@@ -148,6 +147,7 @@
 		document.getElementById('container').classList.remove('hide');
 		document.getElementById('default-container').style.display = 'none';
 		reimit('getData');
+		setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 2000)
 	})
 
 	document.querySelector('#btnMriExpand').addEventListener('click', (event) => {
@@ -274,6 +274,14 @@
                 nv1.volumes[volumeIndex].colormap = selectedColormap; // Update the volume's colormap
                 nv1.updateGLVolume(); // Refresh the volume render
             };
+			if (selectedOptionText === 'PET') {
+				colorMapDropdown.value = 'jet';
+				colorMapDropdown.dispatchEvent(new Event('change'))
+			}
+			if (selectedOptionText === 'Spect') {
+				colorMapDropdown.value = 'hot';
+				colorMapDropdown.dispatchEvent(new Event('change'))
+			}
             // Append the button and the dropdown to the opacityControls div
             let controlContainer = document.createElement("div");
             //controlContainer.appendChild(colorMapButton);
