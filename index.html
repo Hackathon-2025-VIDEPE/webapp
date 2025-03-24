@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Investigate impact of regularisation on inverse solution.</title>
+    <title>VIDÉPÉ</title>
 	<link rel="stylesheet" href="./styles/common.css" />
     <link rel="stylesheet" href="./styles/niivue_dualview.css" />
 	<link rel="stylesheet" href="./styles/mri.css" />
@@ -13,7 +13,7 @@
   <body>
     <noscript>niivue requires JavaScript.</noscript>
     <header>
-		<h3>Investigate impact of the regularisation parameter lambda on different inverse solutions</h3>
+		<h3>VIDÉPÉ (Visualisation Intéractive des Données pour l’Évaluation Préchirurgicale de l'Épilepsie)</h3>
 		<div class="row">
 			<div class="dropdown">
 				<button class="dropbtn" data-toggle="dropdown">
@@ -28,52 +28,28 @@
 					<div class="file-info">EEG-sef<span id="SEFStatus"></span></div>
 				</div>
 			</div>
-			<div class="dropdown">
+			<div id="MRI_dropDown" class="dropdown">
 				<button class="dropbtn" data-toggle="dropdown">
-				View
-				<i class="fa fa-caret-down"></i>
+					MRI settings
+					<i class="fa fa-caret-down"></i>
 				</button>
-				<div class="dropdown-content">
-				<a href="#" class="viewBtn" id="|Axial">Axial</a>
-				<a class="viewBtn" id="|Sagittal">Sagittal</a>
-				<a class="viewBtn" id="|Coronal">Coronal</a>
-				<a class="viewBtn" id="|Render">Render</a>
-				<a class="viewBtn" id="|MultiPlanar">A+C+S</a>
-				<a class="viewBtn dropdown-item-checked" id="|MultiPlanarRender">A+C+S+R</a		  >
-				<a class="viewBtn divider dropdown-item-checked" id="Colorbar">Colorbar</a>
-				<a class="viewBtn" id="Radiological">Radiological</a>
-				<a class="viewBtn" id="ClipPlane">Render Clip Plane</a>
+				<div id="MRI_dropDownContent" class="dropdown-content">
 				</div>
 			</div>
-			<div class="dropdown">
-				<button class="dropbtn">
-				PSF Color
-				<i class="fa fa-caret-down"></i>
+			<div id="PET_dropDown" class="dropdown">
+				<button class="dropbtn" data-toggle="dropdown">
+					PET settings
+					<i class="fa fa-caret-down"></i>
 				</button>
-				<div class="dropdown-content">
-				<a class="viewBtn" id="!Blue">Blue</a>
-				<a class="viewBtn" id="!Blue2Cyan">Blue2Cyan</a>
-				<a class="viewBtn" id="!Bronze">Bronze</a>
-				<a class="viewBtn" id="!Cividis">Cividis</a>
-				<a class="viewBtn" id="!Electric_Blue">Electric_Blue</a>
-				<a class="viewBtn dropdown-item-checked" id="!Hot">Hot</a>
-				<a class="viewBtn" id="!Inferno">Inferno</a>
-				<a class="viewBtn" id="!Magma">Magma</a>
-				<a class="viewBtn" id="!Plasma">Plasma</a>
-				<a class="viewBtn" id="!Rocket">Rocket</a>
-				<a class="viewBtn" id="!Violet">Violet</a>
-				<a class="viewBtn" id="!Viridis">Viridis</a>
+				<div id="PET_dropDownContent" class="dropdown-content">
 				</div>
 			</div>
-			<div class="dropdown">
-				<button class="dropbtn">
-				Inverse solutions
-				<i class="fa fa-caret-down"></i>
+			<div id="SPECT_dropDown" class="dropdown">
+				<button class="dropbtn" data-toggle="dropdown">
+					SPECT settings
+					<i class="fa fa-caret-down"></i>
 				</button>
-				<div class="dropdown-content">
-					<a class="viewBtn dropdown-item-checked" id="_eLORETA">eLORETA</a>
-					<a class="viewBtn dropdown" id="_LCMV">LCMV</a>
-					<a class="viewBtn dropdown" id="_DipoleFit">DipoleFit</a>
+				<div id="SPECT_dropDownContent" class="dropdown-content">
 				</div>
 			</div>
 			<div class="dropdown">
@@ -82,10 +58,11 @@
 				<i class="fa fa-caret-down"></i>
 				</button>
 				<div class="dropdown-content">
-					<a class="viewBtn dropdown" id="-Authors">Authors</a>
+					<a class="viewBtn dropdown" href="https://github.com/Hackathon-2025-VIDEPE/webapp" target="_blank">VIDÉPÉ - Github</a>
 					<a class="viewBtn dropdown" href="https://github.com/niivue/niivue" target="_blank">Niivue</a>
-					<a class="viewBtn dropdown" href="https://www.fieldtriptoolbox.org/" target="_blank">Fieldtrip</a>
 					<a class="viewBtn dropdown" href="https://plotly.com/javascript/" target="_blank">Plotly</a>
+					<a class="viewBtn dropdown" href="https://denisbrunet.github.io/Cartool/index.html" target="_blank">Cartool</a>
+					<a class="viewBtn dropdown" href="https://www.fieldtriptoolbox.org/" target="_blank">Fieldtrip</a>
 				</div>
 			</div>
 		</div>
@@ -98,10 +75,9 @@
 						<canvas id="glTopo" >
 					</div>
 					<div id="eegPannel"></div>
-    				<div id="opacityControls"></div>
 				</div>
 				<div class='column'>
-					<div class="mri-settings">
+					<div class="mri-settings" style="z-index:0">
 						<button id="btnMriExpand">Toggle-Expand</button>
 						<select id="sliceType">
 							<option value="0">Axial</option>
@@ -113,7 +89,7 @@
 						<select id="Add file">
 							<option value="0">Load an image</option>
 							<option value="1">PET</option>
-							<option value="2">Spect</option>
+							<option value="2">SPECT</option>
 							<option value="3">MRI</option>
 						</select>
 					</div>
@@ -202,14 +178,21 @@
                 alert("You can only load up to 10 volumes.");
                 return;
             }
+			
             // **Update Niivue to render all volumes**
             //await nv1.updateGLVolume();
-            console.log("Current volumes:", nv1.volumes);
+            //console.log("Current volumes:", nv1.volumes);
             // Create an opacity slider for this volume
             createOpacitySlider(nv1.volumes.length - 1, selectedOptionText); // Pass the index of the newly added volume
             createColorMapControl(nv1.volumes.length - 1, selectedOptionText); // Pass the index of the newly added volume
             createVisibilityControl(nv1.volumes.length - 1, selectedOptionText); // Pass the index of the newly added volume
-            if (selectedOptionText === "PET" || selectedOptionText === "Spect") {
+			// get values and reordered them once, during the upload not when thresholding
+			let currValues = orderCurrValues(nv1.volumes.length - 1)
+			if (nv1.volumes.length === 1) {
+                nv1.valuesList = [];
+            }
+			nv1.valuesList.push(currValues);
+            if (selectedOptionText === "PET" || selectedOptionText === "SPECT") {
                 createthresholdslider(nv1.volumes.length - 1, selectedOptionText,false);
             }
             else {
@@ -222,7 +205,7 @@
             let sliderContainer = document.createElement("div");
             // Create the label for the slider
             let label = document.createElement("label");
-            label.innerHTML = selectedOptionText + '_opacity';
+            label.innerHTML = 'Opacity ';
             // Create the slider element
             let slider = document.createElement("input");
             slider.type = "range";
@@ -244,7 +227,10 @@
                 adjustOpacity(volumeIndex, opacity); // Adjust opacity of the specific volume
             };
             // Add the slider container to the opacityControls div
-            opacityControls.appendChild(sliderContainer);
+            // opacityControls.appendChild(sliderContainer);
+			// Add the slider container to the dropdown menu
+            let dropDwnCnt = document.getElementById(selectedOptionText + '_dropDownContent');
+			dropDwnCnt.appendChild(sliderContainer);
         }
         // Function to adjust opacity using setOpacity method
         function adjustOpacity(volumeIndex, opacityValue) {
@@ -254,13 +240,13 @@
         }
         // Function to create the colormap control dropdown dynamically
         function createColorMapControl(volumeIndex, selectedOptionText='') {
-            // Create the button to open the colormap dropdown
-            let colorMapButton = document.createElement("button");
-            colorMapButton.innerHTML = selectedOptionText +  'ColorMap ';
+            // Create the label to open the colormap dropdown
+			let colorMapLabel = document.createElement("label");
+			colorMapLabel.innerHTML = 'ColorMap '
             // Create the dropdown for colormap selection
             let colorMapDropdown = document.createElement("select");
             // List of predefined colormaps
-            const colormaps = ['gray', 'hot', 'jet', 'cool', 'spring', 'summer', 'autumn', 'winter', 'parula'];
+            const colormaps = nv1.colormaps();
             // Add options for each colormap to the dropdown
             colormaps.forEach((colormap) => {
                 let option = document.createElement("option");
@@ -274,74 +260,77 @@
                 nv1.volumes[volumeIndex].colormap = selectedColormap; // Update the volume's colormap
                 nv1.updateGLVolume(); // Refresh the volume render
             };
-			if (selectedOptionText === 'PET') {
+			if (selectedOptionText === 'MRI') {
+				colorMapDropdown.value = 'gray';
+			} else if (selectedOptionText === 'PET') {
 				colorMapDropdown.value = 'jet';
-				colorMapDropdown.dispatchEvent(new Event('change'))
-			}
-			if (selectedOptionText === 'Spect') {
+			} else if (selectedOptionText === 'SPECT') {
 				colorMapDropdown.value = 'hot';
-				colorMapDropdown.dispatchEvent(new Event('change'))
 			}
-            // Append the button and the dropdown to the opacityControls div
+			colorMapDropdown.dispatchEvent(new Event('change')) // put out of the ifs so that it changes to gray for the MRI as well
+            // Append the button and the dropdown to the dedicated dropdown menu
             let controlContainer = document.createElement("div");
-            //controlContainer.appendChild(colorMapButton);
+            controlContainer.appendChild(colorMapLabel);
             controlContainer.appendChild(colorMapDropdown);
-            opacityControls.appendChild(controlContainer);
+            //opacityControls.appendChild(controlContainer);
+            let dropDwnCnt = document.getElementById(selectedOptionText + '_dropDownContent');
+			dropDwnCnt.appendChild(controlContainer);
         }
         // Function to create the visibility control checkbox dynamically
         function createVisibilityControl(volumeIndex, selectedOptionText='') {
-    // Create a container for the visibility control
-    let controlContainer = document.createElement("div");
-    // Create the checkbox for visibility control
-    let visibilityCheckbox = document.createElement("input");
-    visibilityCheckbox.type = "checkbox";
-    visibilityCheckbox.checked = true; // Default visibility is true
-    // Create the label for the checkbox
-    let visibilityLabel = document.createElement("label");
-    visibilityLabel.innerHTML = selectedOptionText +` Visibility`;
-    // When the checkbox is toggled, update the visibility of the volume
-    visibilityCheckbox.onchange = function () {
-        let visibility = visibilityCheckbox.checked;
-        if (nv1.volumes[volumeIndex]) {
-            if (visibilityCheckbox.checked === false) {
-                adjustOpacity(volumeIndex, 0); // Set opacity to 0 if volume is not visible
-                opacityControls.childNodes[4*volumeIndex].childNodes[1].disabled = true;
-                opacityControls.childNodes[4*volumeIndex+1].childNodes[0].disabled = true;
-            } else {
-                opacityControls.childNodes[4*volumeIndex].childNodes[1].disabled = false;
-                opacityControls.childNodes[4*volumeIndex+1].childNodes[0].disabled = false;
-                adjustOpacity(volumeIndex, opacityControls.childNodes[4*volumeIndex].childNodes[1].value); // Set opacity to 70% if volume is visible
-            }
-            nv1.updateGLVolume(); // Refresh the volume rendering
-        } else {
-            console.warn(`Volume ${volumeIndex} not found`);
-        }
-    };
-    // Append elements to the container
-    controlContainer.appendChild(visibilityCheckbox);
-    controlContainer.appendChild(visibilityLabel);
-    // Add the control container to the opacityControls div
-    if (opacityControls) {
-        opacityControls.appendChild(controlContainer);
-    } else {
-        console.warn("opacityControls div not found in the document.");
-    }
-}
-function createthresholdslider(volumeIndex, selectedOptionText='',vis) {
+			// Create a container for the visibility control
+			let controlContainer = document.createElement("div");
+			// Create the checkbox for visibility control
+			let visibilityCheckbox = document.createElement("input");
+			visibilityCheckbox.type = "checkbox";
+			visibilityCheckbox.checked = true; // Default visibility is true
+			// Create the label for the checkbox
+			let visibilityLabel = document.createElement("label");
+			visibilityLabel.innerHTML = 'Visibility';
+			// When the checkbox is toggled, update the visibility of the volume
+			let dropDwnCnt = document.getElementById(selectedOptionText + '_dropDownContent');
+			visibilityCheckbox.onchange = function () {
+				let visibility = visibilityCheckbox.checked;
+				if (nv1.volumes[volumeIndex]) {
+					if (visibilityCheckbox.checked === false) {
+						adjustOpacity(volumeIndex, 0); // Set opacity to 0 if volume is not visible
+						dropDwnCnt.childNodes[1].childNodes[1].disabled = true;
+						dropDwnCnt.childNodes[2].childNodes[0].disabled = true;
+					} else {
+						dropDwnCnt.childNodes[1].childNodes[1].disabled = false;
+						dropDwnCnt.childNodes[2].childNodes[0].disabled = false;
+						adjustOpacity(volumeIndex, dropDwnCnt.childNodes[1].childNodes[1].value); // Set opacity to 70% if volume is visible
+					}
+					nv1.updateGLVolume(); // Refresh the volume rendering
+				} else {
+					console.warn(`Volume ${volumeIndex} not found`);
+				}
+			};
+			// Append elements to the container
+			controlContainer.appendChild(visibilityCheckbox);
+			controlContainer.appendChild(visibilityLabel);
+			// Add the control container to the dedicated dropdown menu
+			if (dropDwnCnt) {
+				dropDwnCnt.appendChild(controlContainer);
+			} else {
+				console.warn("dropDwnCnt div not found in the document.");
+			}
+		}
+		function createthresholdslider(volumeIndex, selectedOptionText='',vis) {
             // Create the slider container
             let sliderContainer = document.createElement("div");
             // Create the label for the slider
             let label = document.createElement("label");
             label.hidden = vis;
-            label.innerHTML = selectedOptionText + '_threshold';
+            label.innerHTML = 'Threshold';
             // Create the slider element
             let slider = document.createElement("input");
             slider.type = "range";
-            slider.min = nv1.volumes[volumeIndex].cal_min;
-            slider.max = 1.01*nv1.volumes[volumeIndex].cal_max;
-            slider.step = 0.01*(nv1.volumes[volumeIndex].cal_max-nv1.volumes[volumeIndex].cal_min);
+            slider.min = 0;
+            slider.max = 100;
+            slider.step = 1;
             slider.hidden = vis;
-            slider.value = nv1.volumes[volumeIndex].cal_min; // Set the default opacity to 70%
+            slider.value = 0; // Set the default opacity to 70%
             slider.classList.add("opacity-slider"); // Add class for styling
             // Create the input element for the opacity value display
             let threshValue = document.createElement("span");
@@ -357,19 +346,35 @@ function createthresholdslider(volumeIndex, selectedOptionText='',vis) {
                 threshValue.innerHTML = `${thresh}%`; // Update the displayed opacity value
                 adjustThreshold(volumeIndex, thresh); // Adjust opacity of the specific volume
             };
-            // Add the slider container to the opacityControls div
-            opacityControls.appendChild(sliderContainer);
+			slider.dispatchEvent(new Event('input'))
+            // Add the slider container to the dedicated dropdown menu
+			let dropDwnCnt = document.getElementById(selectedOptionText + '_dropDownContent');
+			dropDwnCnt.appendChild(sliderContainer);
         }
         // Function to adjust opacity using setOpacity method
         function adjustThreshold(volumeIndex, thresh) {
-            nv1.volumes[volumeIndex].cal_min = thresh; 
+			let  currValues = nv1.valuesList[volumeIndex];
+			thresh = Math.floor((100-thresh)/100*currValues.length);
+			let cal_min = currValues[thresh-1];
+            nv1.volumes[volumeIndex].cal_min = cal_min; 
             nv1.updateGLVolume(); // Update the visualization
         }
-
+		
+		function orderCurrValues(volumeNumber){
+			let currImage = nv1.volumes[volumeNumber].valueOf();
+			let volSize = currImage.dimsRAS[1]*currImage.dimsRAS[2]*currImage.dimsRAS[3];
+			let nDecimation = (volSize > 1e6) ?  Math.floor(volSize/1e6) : 1;
+			let currValues = currImage.img.slice(0,volSize);
+			// downsample the data for faster implementation of sorting and select only non NaN and non zero elements
+			currValues = currValues.filter((value, id) => (id % nDecimation === 0) && (!Number.isNaN(value))  && (value !== 0));
+			currValues = currValues.sort((a, b) => b-a);
+			return currValues
+		}
 
         var nv1 = new niivue.Niivue({
-            dragAndDropEnabled: true,
-            onLocationChange: handleIntensityChange
+            dragAndDropEnabled: false,
+			isOrientCube: true,
+            //onLocationChange: handleIntensityChange
         });
         await nv1.attachTo('gl1');
         nv1.setSliceType(nv1.sliceTypeMultiplanar);
