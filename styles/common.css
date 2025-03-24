@@ -1,3 +1,10 @@
+.file-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 4px 6px;
+    gap: 2em;
+}
 .uploaded {
     color: green;
 }
