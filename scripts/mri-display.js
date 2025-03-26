@@ -28,7 +28,30 @@ export class MRIDisplay{
         let selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
         // Load the new file into a Niivue-compatible buffer
         let loadedVolume = await nv1.loadFromFile(f[0]);
-        // Ensure volumes list exists
+		
+		this.setupAfterLoading(selectedOptionText);
+    }
+	
+	async loadFileFromURL(URL, selectedOptionText='') {
+
+        //
+        // DATA
+        //
+        const nv1 = this.niivue;
+        console.log('Attempting to load file from ', URL);
+		const volumeList = [
+		{
+			url: URL,
+			colormap: "gray",
+			opacity: 1
+		}];
+		await nv1.loadVolumes(volumeList)
+        this.setupAfterLoading(selectedOptionText);
+    }
+	
+	setupAfterLoading(selectedOptionText){
+		const nv1 = this.niivue;
+		// Ensure volumes list exists
         if (!nv1.volumes) {
             nv1.volumes = [];
         }
@@ -63,8 +86,8 @@ export class MRIDisplay{
         else {
             this.mriLayersOverlay.createthresholdslider(nv1.volumes.length - 1, selectedOptionText,true);
         }
-    }
-
+	}
+	
     orderCurrValues(volumeNumber){
         let currImage = this.niivue.volumes[volumeNumber].valueOf();
         let volSize = currImage.dimsRAS[1]*currImage.dimsRAS[2]*currImage.dimsRAS[3];

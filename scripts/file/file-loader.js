@@ -48,7 +48,7 @@ function loadEEGFiles() {
                 if (file.name.includes('.sef')){
                     readSEFFile(file);
                 } else if (file.name.includes(('.vhdr'))){
-                    readVHDRFile(file);
+                    readVHDRfromFile(file);
                 } else {
                     throw new Error("EEG file format not supported")
                 }
@@ -113,30 +113,46 @@ function readSEFFile(file) {
     };
 }
 
-function readVHDRFile(file) {
+function readVHDRfromFile(file) {
     fileReader.readAsArrayBuffer(file);
     fileReader.onload = function(event) {
         const fileData = textDecoder.decode(event.target.result);
-        importedData.fileName = file.name;
-        importedData.eegFileName = /DataFile=([^\r\n]*)/.exec(fileData)[1];
-        importedData.nChannels = Number(/NumberOfChannels=(\d+)/.exec(fileData)[1]);
-        importedData.sampRate = 1e6 / Number(/SamplingInterval=(\d+)/.exec(fileData)[1]);
-        importedData.orientation = /DataOrientation=(MULTIPLEXED|VECTORIZED)/.exec(fileData)[1];
-        let match;
-        const regex = /(Ch\d+)=(\w+),,/gm;
-        importedData.channels = []
-        while ((match = regex.exec(fileData)) !== null) {
-            if (match.index === regex.lastIndex) {
-                regex.lastIndex++;
-            }
-            importedData.channels = [...importedData.channels, match[2]];
-        }
-        fireEvent('loadVHDRFile', true)
-        loadEEGFile();
+		readVHDR(fileData, file.name);
+		loadEEGfromFile();
+        
     }
 }
 
-function loadEEGFile() {
+export async function readVHDRfromURL(url) {
+	const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.statusText}`);
+    }
+    const fileContent = await response.text();
+	readVHDR(fileContent, url);
+	url = url.replace('.vhdr', '.eeg');
+	loadEEGfromURL(url);
+}
+
+function readVHDR(fileData, filename) {
+	importedData.fileName = filename;
+	importedData.eegFileName = /DataFile=([^\r\n]*)/.exec(fileData)[1];
+	importedData.nChannels = Number(/NumberOfChannels=(\d+)/.exec(fileData)[1]);
+	importedData.sampRate = 1e6 / Number(/SamplingInterval=(\d+)/.exec(fileData)[1]);
+	importedData.orientation = /DataOrientation=(MULTIPLEXED|VECTORIZED)/.exec(fileData)[1];
+	let match;
+	const regex = /(Ch\d+)=(\w+),,/gm;
+	importedData.channels = []
+	while ((match = regex.exec(fileData)) !== null) {
+		if (match.index === regex.lastIndex) {
+			regex.lastIndex++;
+		}
+		importedData.channels = [...importedData.channels, match[2]];
+	}
+	fireEvent('loadVHDRFile', true)
+}
+
+function loadEEGfromFile() {
     const inputEEG = document.createElement('input');
     inputEEG.type = 'file';
     inputEEG.accept = '.eeg';
@@ -145,25 +161,37 @@ function loadEEGFile() {
     inputEEG.addEventListener('change', (onChangeEvent) => {
         const file = onChangeEvent.target.files[0];
         if (file) {
-            readEEGFile(file);
-        }
-    });
+            fileReader.readAsArrayBuffer(file);
+			fileReader.onload = function(event) {
+				importedData.fileName = file.name;
+				const arrayBuffer = event.target.result;
+				readEEGFile(arrayBuffer);
+			}
+		}
+	});
 
     inputEEG.click();
 }
 
-function readEEGFile(file) {
-    fileReader.readAsArrayBuffer(file);
-    fileReader.onload = function(event) {
-        importedData.fileName = file.name;
-        const arrayBuffer = event.target.result;
-        // Convert binary data to Float32Array
-        const float32Array = new Float32Array(arrayBuffer); 
-        importedData.data = getEEGMatrix(float32Array, importedData.nChannels);
-        fireEvent('loadEEGFile', true);
-        fireEvent('showContent', true);
-        fireEvent('getData', importedData);
-    }
+async function loadEEGfromURL(url){
+	// Fetch the file from the URL
+	const response = await fetch(url);
+	if (!response.ok) {
+		throw new Error(`HTTP error! Status: ${response.status}`);
+	}
+	importedData.fileName = url;
+	// Get the file as an ArrayBuffer
+	const arrayBuffer = await response.arrayBuffer();
+	readEEGFile(arrayBuffer);
+}
+
+function readEEGFile(arrayBuffer) {
+	// Convert binary data to Float32Array
+	const float32Array = new Float32Array(arrayBuffer); 
+	importedData.data = getEEGMatrix(float32Array, importedData.nChannels);
+	fireEvent('loadEEGFile', true);
+	fireEvent('showContent', true);
+	fireEvent('getData', importedData);
 }
 
 function getEEGMatrix(float32Array, nChannels) {

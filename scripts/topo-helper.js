@@ -19,7 +19,7 @@ export class TopoDisplay {
 	}
   
 	async loadEEGTopo(data) {
-		const EEG_LAYOUT_DIR = "./EEG_layout_templates";
+		const EEG_LAYOUT_DIR = document.location.origin + "/EEG_layout_templates";
 		const channelList = data.detail.channels;
 		const eegMatrix = data.detail.data;
 		const rangeMin = Math.min(...eegMatrix.map((chanData,i) => Math.min(...chanData)));
@@ -38,7 +38,7 @@ export class TopoDisplay {
 			if ( sameChannels ) { // if EEG channels are the same in data and JSON 
 				//console.log(channelLabels);
 				//console.log(currentMeshConfig.file);
-				const urlGifti = './' + EEG_LAYOUT_DIR + '/' + currentMeshConfig.file;
+				const urlGifti = EEG_LAYOUT_DIR + '/' + currentMeshConfig.file;
 				let meshLayersList = this.createMeshInfo(urlGifti);
 				await this.nvTopo.loadMeshes([
 					{
