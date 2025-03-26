@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -86,7 +85,7 @@
 							<option value="4">Render</option>
 							<option value="3" selected>A+C+S+R</option>
 						</select>
-						<select id="Add file">
+						<select id="selectAddFile">
 							<option value="0">Load an image</option>
 							<option value="1">PET</option>
 							<option value="2">SPECT</option>
@@ -103,19 +102,18 @@
 	</div>
   	</body>
 </html>
+
+<script type="module" src="./scripts/lib/niivue.0.46.0.js"></script>
+<script src="./scripts/lib/plotly-3.0.1.min.js" charset="utf-8"></script>
 <script type="module" src="./scripts/store.js"></script>
-<script type="module" src="./scripts/helper.js"></script>
-<script type="module" src="./scripts/main.js"></script>
-<script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
 <script type="module" src="./scripts/eeg-charts.js"></script>
 <script src="./scripts/file/file-manager.js"></script>
-<script src="./scripts/niivue.0.46.0.js"></script>
 <script type="module" async>
-	import * as niivue from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.46.0/dist/index.js";
 	import reimit from './scripts/store.js';
 	import { eegChartBinding } from "./scripts/eeg-charts.js";
 	import { initEvents } from './scripts/file/file-loader.js';
-	import TopoDisplay from "./scripts/topo-helper.js";
+	import { TopoDisplay } from "./scripts/topo-helper.js";
+	import { MRIDisplay } from "./scripts/mri-display.js";
 	
 	initEvents();
 
@@ -131,251 +129,11 @@
 		reimit('getData');
 	});
 
-	let myTopoDisp = new TopoDisplay('glTopo', niivue);
+	let myTopoDisp = new TopoDisplay('glTopo');
 	document.addEventListener('getData', (data) => {
-		myTopoDisp.loadEEGTopo(data)
+		myTopoDisp.loadEEGTopo(data);
 	})
 	eegChartBinding(myTopoDisp);
- </script>
- <script type="module" async>
-	import * as niivue from "https://cdn.jsdelivr.net/npm/@niivue/niivue@0.46.0/dist/index.js";
-        var drop = document.getElementById('sliceType');
-        var immethod = "";
-        var addfile = document.getElementById('Add file');
-        drop.onchange = function () {
-            let st = parseInt(document.getElementById('sliceType').value);
-            nv1.setSliceType(st);
-        };
-        addfile.onchange = function () {
-            let input = document.createElement('input');
-            input.style.display = 'none';
-            input.type = 'file';
-            input.accept = ".nii,.nii.gz";
-            immethod = document.getElementById('Add file').value;
-            document.body.appendChild(input);
-            input.onchange = function (event) {
-                loadFileIntoBuffer(event.target.files, immethod);
-            };
-            input.click();
-        };
-        function handleIntensityChange(data) {
-            document.getElementById('intensity').innerHTML = '&nbsp;&nbsp;' + data.string;
-            console.log(data);
-        }
-        async function loadFileIntoBuffer(f, bufferName) {
-            console.log('Attempting to load file', f[0].name);
-            // Get the selected option text from the dropdown
-            let selectElement = document.getElementById('Add file');
-            let selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
-            // Load the new file into a Niivue-compatible buffer
-            let loadedVolume = await nv1.loadFromFile(f[0]);
-            // Ensure volumes list exists
-            if (!nv1.volumes) {
-                nv1.volumes = [];
-            }
-            // **Limit to 10 volumes**
-            if (nv1.volumes.length >= 10) {
-                alert("You can only load up to 10 volumes.");
-                return;
-            }
-			
-            // **Update Niivue to render all volumes**
-            //await nv1.updateGLVolume();
-            //console.log("Current volumes:", nv1.volumes);
-            // Create an opacity slider for this volume
-            createOpacitySlider(nv1.volumes.length - 1, selectedOptionText); // Pass the index of the newly added volume
-            createColorMapControl(nv1.volumes.length - 1, selectedOptionText); // Pass the index of the newly added volume
-            createVisibilityControl(nv1.volumes.length - 1, selectedOptionText); // Pass the index of the newly added volume
-			// get values and reordered them once, during the upload not when thresholding
-			let currValues = orderCurrValues(nv1.volumes.length - 1)
-			if (nv1.volumes.length === 1) {
-                nv1.valuesList = [];
-            }
-			nv1.valuesList.push(currValues);
-            if (selectedOptionText === "PET" || selectedOptionText === "SPECT") {
-                createthresholdslider(nv1.volumes.length - 1, selectedOptionText,false);
-            }
-            else {
-                createthresholdslider(nv1.volumes.length - 1, selectedOptionText,true);
-            }
-        }   
-        // Function to create an opacity slider dynamically
-        function createOpacitySlider(volumeIndex, selectedOptionText='') {
-            // Create the slider container
-            let sliderContainer = document.createElement("div");
-            // Create the label for the slider
-            let label = document.createElement("label");
-            label.innerHTML = 'Opacity ';
-            // Create the slider element
-            let slider = document.createElement("input");
-            slider.type = "range";
-            slider.min = 0;
-            slider.max = 100;
-            slider.value = 70; // Set the default opacity to 70%
-            slider.classList.add("opacity-slider"); // Add class for styling
-            // Create the input element for the opacity value display
-            let opacityValue = document.createElement("span");
-            opacityValue.innerHTML = "70%";
-            // Append the elements to the slider container
-            sliderContainer.appendChild(label);
-            sliderContainer.appendChild(slider);
-            sliderContainer.appendChild(opacityValue);
-            // Add event listener to update opacity value
-            slider.oninput = function () {
-                let opacity = slider.value;
-                opacityValue.innerHTML = `${opacity}%`; // Update the displayed opacity value
-                adjustOpacity(volumeIndex, opacity); // Adjust opacity of the specific volume
-            };
-            // Add the slider container to the opacityControls div
-            // opacityControls.appendChild(sliderContainer);
-			// Add the slider container to the dropdown menu
-            let dropDwnCnt = document.getElementById(selectedOptionText + '_dropDownContent');
-			dropDwnCnt.appendChild(sliderContainer);
-        }
-        // Function to adjust opacity using setOpacity method
-        function adjustOpacity(volumeIndex, opacityValue) {
-            // Use the setOpacity function to adjust opacity of the specific volume
-            nv1.setOpacity(volumeIndex, opacityValue / 100); // Convert to value between 0 and 1
-            nv1.updateGLVolume(); // Update the visualization
-        }
-        // Function to create the colormap control dropdown dynamically
-        function createColorMapControl(volumeIndex, selectedOptionText='') {
-            // Create the label to open the colormap dropdown
-			let colorMapLabel = document.createElement("label");
-			colorMapLabel.innerHTML = 'ColorMap '
-            // Create the dropdown for colormap selection
-            let colorMapDropdown = document.createElement("select");
-            // List of predefined colormaps
-            const colormaps = nv1.colormaps();
-            // Add options for each colormap to the dropdown
-            colormaps.forEach((colormap) => {
-                let option = document.createElement("option");
-                option.value = colormap;
-                option.text = colormap;
-                colorMapDropdown.appendChild(option);
-            });
-            // When an option is selected, update the colormap of the volume
-            colorMapDropdown.onchange = function () {
-                let selectedColormap = colorMapDropdown.value;
-                nv1.volumes[volumeIndex].colormap = selectedColormap; // Update the volume's colormap
-                nv1.updateGLVolume(); // Refresh the volume render
-            };
-			if (selectedOptionText === 'MRI') {
-				colorMapDropdown.value = 'gray';
-			} else if (selectedOptionText === 'PET') {
-				colorMapDropdown.value = 'jet';
-			} else if (selectedOptionText === 'SPECT') {
-				colorMapDropdown.value = 'hot';
-			}
-			colorMapDropdown.dispatchEvent(new Event('change')) // put out of the ifs so that it changes to gray for the MRI as well
-            // Append the button and the dropdown to the dedicated dropdown menu
-            let controlContainer = document.createElement("div");
-            controlContainer.appendChild(colorMapLabel);
-            controlContainer.appendChild(colorMapDropdown);
-            //opacityControls.appendChild(controlContainer);
-            let dropDwnCnt = document.getElementById(selectedOptionText + '_dropDownContent');
-			dropDwnCnt.appendChild(controlContainer);
-        }
-        // Function to create the visibility control checkbox dynamically
-        function createVisibilityControl(volumeIndex, selectedOptionText='') {
-			// Create a container for the visibility control
-			let controlContainer = document.createElement("div");
-			// Create the checkbox for visibility control
-			let visibilityCheckbox = document.createElement("input");
-			visibilityCheckbox.type = "checkbox";
-			visibilityCheckbox.checked = true; // Default visibility is true
-			// Create the label for the checkbox
-			let visibilityLabel = document.createElement("label");
-			visibilityLabel.innerHTML = 'Visibility';
-			// When the checkbox is toggled, update the visibility of the volume
-			let dropDwnCnt = document.getElementById(selectedOptionText + '_dropDownContent');
-			visibilityCheckbox.onchange = function () {
-				let visibility = visibilityCheckbox.checked;
-				if (nv1.volumes[volumeIndex]) {
-					if (visibilityCheckbox.checked === false) {
-						adjustOpacity(volumeIndex, 0); // Set opacity to 0 if volume is not visible
-						dropDwnCnt.childNodes[1].childNodes[1].disabled = true;
-						dropDwnCnt.childNodes[2].childNodes[0].disabled = true;
-					} else {
-						dropDwnCnt.childNodes[1].childNodes[1].disabled = false;
-						dropDwnCnt.childNodes[2].childNodes[0].disabled = false;
-						adjustOpacity(volumeIndex, dropDwnCnt.childNodes[1].childNodes[1].value); // Set opacity to 70% if volume is visible
-					}
-					nv1.updateGLVolume(); // Refresh the volume rendering
-				} else {
-					console.warn(`Volume ${volumeIndex} not found`);
-				}
-			};
-			// Append elements to the container
-			controlContainer.appendChild(visibilityCheckbox);
-			controlContainer.appendChild(visibilityLabel);
-			// Add the control container to the dedicated dropdown menu
-			if (dropDwnCnt) {
-				dropDwnCnt.appendChild(controlContainer);
-			} else {
-				console.warn("dropDwnCnt div not found in the document.");
-			}
-		}
-		function createthresholdslider(volumeIndex, selectedOptionText='',vis) {
-            // Create the slider container
-            let sliderContainer = document.createElement("div");
-            // Create the label for the slider
-            let label = document.createElement("label");
-            label.hidden = vis;
-            label.innerHTML = 'Threshold';
-            // Create the slider element
-            let slider = document.createElement("input");
-            slider.type = "range";
-            slider.min = 0;
-            slider.max = 100;
-            slider.step = 1;
-            slider.hidden = vis;
-            slider.value = 0; // Set the default opacity to 70%
-            slider.classList.add("opacity-slider"); // Add class for styling
-            // Create the input element for the opacity value display
-            let threshValue = document.createElement("span");
-            threshValue.innerHTML = "0%";
-            threshValue.hidden = vis;
-            // Append the elements to the slider container
-            sliderContainer.appendChild(label);
-            sliderContainer.appendChild(slider);
-            sliderContainer.appendChild(threshValue);
-            // Add event listener to update opacity value
-            slider.oninput = function () {
-                let thresh = slider.value;
-                threshValue.innerHTML = `${thresh}%`; // Update the displayed opacity value
-                adjustThreshold(volumeIndex, thresh); // Adjust opacity of the specific volume
-            };
-			slider.dispatchEvent(new Event('input'))
-            // Add the slider container to the dedicated dropdown menu
-			let dropDwnCnt = document.getElementById(selectedOptionText + '_dropDownContent');
-			dropDwnCnt.appendChild(sliderContainer);
-        }
-        // Function to adjust opacity using setOpacity method
-        function adjustThreshold(volumeIndex, thresh) {
-			let  currValues = nv1.valuesList[volumeIndex];
-			thresh = Math.floor((100-thresh)/100*currValues.length);
-			let cal_min = currValues[thresh-1];
-            nv1.volumes[volumeIndex].cal_min = cal_min; 
-            nv1.updateGLVolume(); // Update the visualization
-        }
-		
-		function orderCurrValues(volumeNumber){
-			let currImage = nv1.volumes[volumeNumber].valueOf();
-			let volSize = currImage.dimsRAS[1]*currImage.dimsRAS[2]*currImage.dimsRAS[3];
-			let nDecimation = (volSize > 1e6) ?  Math.floor(volSize/1e6) : 1;
-			let currValues = currImage.img.slice(0,volSize);
-			// downsample the data for faster implementation of sorting and select only non NaN and non zero elements
-			currValues = currValues.filter((value, id) => (id % nDecimation === 0) && (!Number.isNaN(value))  && (value !== 0));
-			currValues = currValues.sort((a, b) => b-a);
-			return currValues
-		}
 
-        var nv1 = new niivue.Niivue({
-            dragAndDropEnabled: false,
-			isOrientCube: true,
-            //onLocationChange: handleIntensityChange
-        });
-        await nv1.attachTo('gl1');
-        nv1.setSliceType(nv1.sliceTypeMultiplanar);
-</script>
+	let mriDisp = new MRIDisplay('gl1');
+ </script>

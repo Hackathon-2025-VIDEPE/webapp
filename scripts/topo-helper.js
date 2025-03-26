@@ -1,6 +1,8 @@
-export default class TopoDisplay {
+import { Niivue } from "./lib/niivue.0.46.0.js";
+
+export class TopoDisplay {
 	
-	constructor(idCanvas, niivue) {
+	constructor(idCanvas) {
 
 		const opts = {
 				show3Dcrosshair: false,
@@ -12,8 +14,7 @@ export default class TopoDisplay {
 				isOrientCube: false,
 		};
 		//this.EEG_LAYOUT_DIR = "./EEG_layout_templates";
-		this.nvTopo = new niivue.Niivue(opts);
-		this.niivue = niivue;
+		this.nvTopo = new Niivue(opts);
 		this.nvTopo.attachTo(idCanvas);
 	}
   
