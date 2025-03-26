@@ -1,4 +1,4 @@
-import * as niivue from "./niivue.0.46.0.js";
+import * as niivue from "./lib/niivue.0.46.0.js";
 
 export default class MRIRenderer {
 
