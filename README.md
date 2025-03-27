@@ -14,7 +14,7 @@ This project was proposed for the [8th HUG Hackathon](https://www.hug.ch/centre-
 
 # Example
 
-[On this page](https://github.com/Hackathon-2025-VIDEPE/webapp/examples/VIDEPE_with_preloaded_MRI_PET.html), you can use a version of VIDEPE with preloaded data. This page allows you to: 
+[On this page](https://hackathon-2025-videpe.github.io/webapp/examples/VIDEPE_with_preloaded_MRI_PET.html), you can use a version of VIDEPE with preloaded data. This page allows you to: 
 1. update the EEG topography by clicking on the EEG traces (left panel),
 2. modify the opacity, threshold and visibility of the imaging data (MRI, PET, SPECT settings, menu bar),
 3. scroll through the slices or rotate the 3D rendering (right panel),
