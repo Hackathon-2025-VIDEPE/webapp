@@ -19,7 +19,11 @@ export class TopoDisplay {
 	}
   
 	async loadEEGTopo(data) {
-		const EEG_LAYOUT_DIR = document.location.origin + "/EEG_layout_templates";
+		if (document.location.origin.includes('github.io')){// if run on git it webapp is missing from origin for some reason (to be improved)
+			const EEG_LAYOUT_DIR = document.location.origin +  "/webapp/EEG_layout_templates";
+		} else {// if run locally
+			const EEG_LAYOUT_DIR = document.location.origin +  "/EEG_layout_templates";
+		}
 		const channelList = data.detail.channels;
 		const eegMatrix = data.detail.data;
 		const rangeMin = Math.min(...eegMatrix.map((chanData,i) => Math.min(...chanData)));
