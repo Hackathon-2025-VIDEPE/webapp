@@ -98,7 +98,7 @@
 		</div>
     </main>
 	<div id="default-container" class="default-container">
-		Start uploading EEG files to process data
+		Currently loading data...
 	</div>
   	</body>
 </html>
@@ -111,7 +111,7 @@
 <script type="module" async>
 	import reimit from '../scripts/store.js';
 	import { eegChartBinding } from "../scripts/eeg-charts.js";
-	import { initEvents, readVHDRfromURL } from '../scripts/file/file-loader.js';
+	import { initEvents, readSEFfromURL } from '../scripts/file/file-loader.js';
 	import { TopoDisplay } from "../scripts/topo-helper.js";
 	import { MRIDisplay } from "../scripts/mri-display.js";
 	
@@ -134,14 +134,12 @@
 		myTopoDisp.loadEEGTopo(data);
 	})
 	eegChartBinding(myTopoDisp);
-	
-	readVHDRfromURL("../data/dataset2/sub-16_ses-preop_task-ied_AVG_desc-cleaned_eeg.vhdr")
+	// Load the T1w MRI and PET + Siscom
 	let mriDisp = new MRIDisplay('gl1');
+	await mriDisp.loadFileFromURL("../data/dataset1/IRM/patT1.nii", 'MRI')
+	await mriDisp.loadFileFromURL("../data/dataset1/MN/pat_PET_aligned.nii", 'PET')
+	await mriDisp.loadFileFromURL("../data/dataset1/MN/pat_siscom_17-13.nii", 'SPECT')
 	
-	mriDisp.loadFileFromURL("../data/dataset1/IRM/patT1.nii", 'MRI')
-	
-	mriDisp.loadFileFromURL("../data/dataset1/MN/pat_PET_aligned.nii", 'PET')
-	
-	mriDisp.loadFileFromURL("../data/dataset1/MN/pat_siscom_17-13.nii", 'SPECT')
+	readSEFfromURL("../data/dataset1/20031972_20250219_030141_seg_ave.Export.sef")
 	
  </script>

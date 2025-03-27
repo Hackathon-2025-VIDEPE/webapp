@@ -45,7 +45,7 @@ export class MRIDisplay{
 			colormap: "gray",
 			opacity: 1
 		}];
-		await nv1.loadVolumes(volumeList)
+		await nv1.addVolumesFromUrl(volumeList)
         this.setupAfterLoading(selectedOptionText);
     }
 	
