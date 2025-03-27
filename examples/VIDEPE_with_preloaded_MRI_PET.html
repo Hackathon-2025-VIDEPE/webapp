@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>VIDÉPÉ</title>
+	<link rel="stylesheet" href="../styles/common.css" />
+    <link rel="stylesheet" href="../styles/niivue_dualview.css" />
+	<link rel="stylesheet" href="../styles/mri.css" />
+  </head>
+  <body>
+    <noscript>niivue requires JavaScript.</noscript>
+    <header>
+		<h3>VIDÉPÉ (Visualisation Intéractive des Données pour l’Évaluation Préchirurgicale de l'Épilepsie)</h3>
+		<div class="row">
+			<div class="dropdown">
+				<button class="dropbtn" data-toggle="dropdown">
+					Files
+					<i class="fa fa-caret-down"></i>
+				</button>
+				<div class="dropdown-content">
+					<a class="fileBtn" id="btnEEGsFile">Load EEG</a>
+					<div class="divider"></div>
+					<div class="file-info"><span>VHDR</span><span id="VHDRStatus"></span></div>
+					<div class="file-info"><span>EEG</span><span id="EEGStatus"></span></div>
+					<div class="file-info"><span>EEG-sef</span><span id="SEFStatus"></span></div>
+				</div>
+			</div>
+			<div id="MRI_dropDown" class="dropdown">
+				<button class="dropbtn" data-toggle="dropdown">
+					MRI settings
+					<i class="fa fa-caret-down"></i>
+				</button>
+				<div id="MRI_dropDownContent" class="dropdown-content threshold">
+				</div>
+			</div>
+			<div id="PET_dropDown" class="dropdown">
+				<button class="dropbtn" data-toggle="dropdown">
+					PET settings
+					<i class="fa fa-caret-down"></i>
+				</button>
+				<div id="PET_dropDownContent" class="dropdown-content threshold">
+				</div>
+			</div>
+			<div id="SPECT_dropDown" class="dropdown">
+				<button class="dropbtn" data-toggle="dropdown">
+					SPECT settings
+					<i class="fa fa-caret-down"></i>
+				</button>
+				<div id="SPECT_dropDownContent" class="dropdown-content threshold">
+				</div>
+			</div>
+			<div class="dropdown">
+				<button class="dropbtn">
+				About
+				<i class="fa fa-caret-down"></i>
+				</button>
+				<div class="dropdown-content">
+					<a class="viewBtn dropdown" href="https://github.com/Hackathon-2025-VIDEPE/webapp" target="_blank">VIDÉPÉ - Github</a>
+					<a class="viewBtn dropdown" href="https://github.com/niivue/niivue" target="_blank">Niivue</a>
+					<a class="viewBtn dropdown" href="https://plotly.com/javascript/" target="_blank">Plotly</a>
+					<a class="viewBtn dropdown" href="https://denisbrunet.github.io/Cartool/index.html" target="_blank">Cartool</a>
+					<a class="viewBtn dropdown" href="https://www.fieldtriptoolbox.org/" target="_blank">Fieldtrip</a>
+				</div>
+			</div>
+		</div>
+  	</header>
+    <main id="container" class="hide">
+		<div class='page-wrapper'>
+			<div class='row'>
+				<div class='column' id="left-column">
+					<div style="height:300px; pointer-events: none">
+						<canvas id="glTopo" >
+					</div>
+					<div id="eegPannel"></div>
+				</div>
+				<div class='column'>
+					<div class="mri-settings" style="z-index:0">
+						<button id="btnMriExpand">Toggle-Expand</button>
+						<select id="sliceType">
+							<option value="0">Axial</option>
+							<option value="1">Coronal</option>
+							<option value="2">Sagittal</option>
+							<option value="4">Render</option>
+							<option value="3" selected>A+C+S+R</option>
+						</select>
+						<select id="selectAddFile">
+							<option value="0">Load an image</option>
+							<option value="1">PET</option>
+							<option value="2">SPECT</option>
+							<option value="3">MRI</option>
+						</select>
+					</div>
+					<canvas id="gl1"></canvas>
+				</div>
+			</div>
+		</div>
+    </main>
+	<div id="default-container" class="default-container">
+		Currently loading data...
+	</div>
+  	</body>
+</html>
+
+<script type="module" src="../scripts/lib/niivue.0.46.0.js"></script>
+<script src="../scripts/lib/plotly-3.0.1.min.js" charset="utf-8"></script>
+<script type="module" src="../scripts/store.js"></script>
+<script type="module" src="../scripts/eeg-charts.js"></script>
+<script src="../scripts/file/file-manager.js"></script>
+<script type="module" async>
+	import reimit from '../scripts/store.js';
+	import { eegChartBinding } from "../scripts/eeg-charts.js";
+	import { initEvents, readSEFfromURL } from '../scripts/file/file-loader.js';
+	import { TopoDisplay } from "../scripts/topo-helper.js";
+	import { MRIDisplay } from "../scripts/mri-display.js";
+	
+	initEvents();
+
+	document.addEventListener('showContent', (event) => {
+		document.getElementById('container').classList.remove('hide');
+		document.getElementById('default-container').style.display = 'none';
+		reimit('getData');
+		setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 2000)
+	})
+
+	document.querySelector('#btnMriExpand').addEventListener('click', (event) => {
+		document.getElementById('left-column').classList.toggle('hide');
+		reimit('getData');
+	});
+
+	let myTopoDisp = new TopoDisplay('glTopo');
+	document.addEventListener('getData', (data) => {
+		myTopoDisp.loadEEGTopo(data);
+	})
+	eegChartBinding(myTopoDisp);
+	// Load the T1w MRI and PET + Siscom
+	let mriDisp = new MRIDisplay('gl1');
+	await mriDisp.loadFileFromURL("../data/dataset1/IRM/patT1.nii", 'MRI')
+	await mriDisp.loadFileFromURL("../data/dataset1/MN/pat_PET_aligned.nii", 'PET')
+	await mriDisp.loadFileFromURL("../data/dataset1/MN/pat_siscom_17-13.nii", 'SPECT')
+	
+	readSEFfromURL("../data/dataset1/20031972_20250219_030141_seg_ave.Export.sef")
+	
+ </script>
