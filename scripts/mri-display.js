@@ -252,9 +252,11 @@ class MRILayersOverlay{
                     MRILayersOverlay.adjustOpacity(this.nv1, volumeIndex, 0); // Set opacity to 0 if volume is not visible
                     dropDwnCnt.childNodes[1].childNodes[1].disabled = true;
                     dropDwnCnt.childNodes[2].childNodes[0].disabled = true;
+		    dropDwnCnt.childNodes[4].childNodes[1].disabled = true;
                 } else {
                     dropDwnCnt.childNodes[1].childNodes[1].disabled = false;
                     dropDwnCnt.childNodes[2].childNodes[0].disabled = false;
+		    dropDwnCnt.childNodes[4].childNodes[1].disabled = false;
                     MRILayersOverlay.adjustOpacity(this.nv1, volumeIndex, dropDwnCnt.childNodes[1].childNodes[1].value); // Set opacity to 70% if volume is visible
                 }
                 this.nv1.updateGLVolume(); // Refresh the volume rendering
